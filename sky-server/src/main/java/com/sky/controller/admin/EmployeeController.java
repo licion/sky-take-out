@@ -80,7 +80,6 @@ public class EmployeeController {
 
     /**
      * 退出
-     *
      * @return
      */
     @PostMapping("/logout")
@@ -100,5 +99,30 @@ public class EmployeeController {
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
     }
+
+    @ApiOperation("修改员工状态")
+    @PostMapping("/status/{status}")
+    public Result updateStatus(@PathVariable Integer status ,Long id){
+        log.info("修改员工状态",status);
+        employeeService.updateStatus(status,id);
+        return Result.success();
+    }
+
+    @PutMapping
+    @ApiOperation("编辑员工")
+    public Result update(@RequestBody EmployeeDTO employeedto){
+        log.info("编辑员工",employeedto);
+        employeeService.update(employeedto);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询员工")
+    public Result findById(@PathVariable Long id){
+        log.info("根据id查询员工",id);
+        Employee employee=  employeeService.findByid(id);
+        return Result.success(employee);
+    }
+
 
 }
