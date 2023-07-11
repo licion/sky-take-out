@@ -21,6 +21,54 @@ import java.time.LocalDateTime;
 @Component
 public class AutoFillAspest {
 
+//    public void autoFill(JoinPoint joinPoint){
+//        log.info("公共字段填充");
+//        //获取数据库操作类型
+//        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+//        AutoFill autoFill = signature.getMethod().getAnnotation(AutoFill.class);
+//        OperationType operationType = autoFill.value();
+//
+//       //判断获取的对象是否为空（是否在添加注解时加错）
+//        Object[] args = joinPoint.getArgs();
+//        if (args == null || args.length == 0){
+//            return;
+//        }
+//        //获取实体对象用以反射赋值
+//        Object entity = args[0];
+//
+//        //准备数据
+//        LocalDateTime now = LocalDateTime.now();
+//        Long currentId = BaseContext.getCurrentId();
+//
+//
+//        //根据当前不同的操作类型，为对应的属性通过反射来赋值
+//        if (operationType == OperationType.INSERT){
+//            try {
+//                Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
+//                Method setCreateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);
+//                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
+//                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
+//
+//                //通过反射为对象属性赋值
+//                setCreateTime.invoke(entity,now);
+//                setCreateUser.invoke(entity,currentId);
+//                setUpdateTime.invoke(entity,now);
+//                setUpdateUser.invoke(entity,currentId);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }else if (operationType == OperationType.UPDATE){
+//            try {
+//                Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
+//                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
+//                setUpdateTime.invoke(entity,now);
+//                setUpdateUser.invoke(entity,currentId);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+
 
     /**
      * 切入点
@@ -37,12 +85,12 @@ public class AutoFillAspest {
         log.info("开始进行公共字段自动填充...");
 
         //获取到当前被拦截的方法上的数据库操作类型
-        MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         AutoFill autoFill = signature.getMethod().getAnnotation(AutoFill.class);
         OperationType operationType = autoFill.value();
 
         Object[] args = joinPoint.getArgs();
-        if (args == null || args.length == 0){
+        if (args == null || args.length == 0) {
             return;
         }
 
@@ -53,7 +101,7 @@ public class AutoFillAspest {
         Long currentId = BaseContext.getCurrentId();
 
         //根据当前不同的操作类型，为对应的属性通过反射来赋值
-        if(operationType == OperationType.INSERT){
+        if (operationType == OperationType.INSERT) {
             //为4个公共字段赋值
             try {
                 Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
@@ -62,32 +110,27 @@ public class AutoFillAspest {
                 Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
 
                 //通过反射为对象属性赋值
-                setCreateTime.invoke(entity,now);
-                setCreateUser.invoke(entity,currentId);
-                setUpdateTime.invoke(entity,now);
-                setUpdateUser.invoke(entity,currentId);
+                setCreateTime.invoke(entity, now);
+                setCreateUser.invoke(entity, currentId);
+                setUpdateTime.invoke(entity, now);
+                setUpdateUser.invoke(entity, currentId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }else if(operationType == OperationType.UPDATE){
+        } else if (operationType == OperationType.UPDATE) {
             //为2个公共字段赋值
             try {
                 Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
                 Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
 
                 //通过反射为对象属性赋值
-                setUpdateTime.invoke(entity,now);
-                setUpdateUser.invoke(entity,currentId);
+                setUpdateTime.invoke(entity, now);
+                setUpdateUser.invoke(entity, currentId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-
-
-
-
-
-    }
+}
 
