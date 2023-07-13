@@ -2,6 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
+
+    <insert id="insertBatch">
+        insert into setmeal_dish
+        (setmeal_id,dish_id,name,price,copies)
+        values
+        <foreach collection="setmealDishes" item="sd" separator=",">
+            (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
+        </foreach>
+    </insert>
+
+    <delete id="deletes">
+        delete from setmeal_dish where setmeal_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <!--根据菜品id查询套餐id列表-->
     <select id="selectByDishIds" resultType="java.lang.Long">
         select setmeal_id from setmeal_dish where dish_id in
@@ -9,4 +26,14 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="getById" resultType="com.sky.entity.SetmealDish">
+        select name from setmeal_dish where setmeal_id = #{id}
+    </select>
+
+    <select id="getBySetmealId" resultType="java.lang.Long">
+        select dish_id from setmeal_dish where setmeal_id = #{id}
+    </select>
+
+
 </mapper>

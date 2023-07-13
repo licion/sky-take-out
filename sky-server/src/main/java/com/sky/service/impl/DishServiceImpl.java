@@ -124,6 +124,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    //有bug，只能停用
     public void statusOffOn(Integer status, Long id) {
         Dish dish = new Dish();
         List<Long> setmealIds = setmealDishMapper.selectByDishIds(Collections.singletonList(id));
@@ -144,6 +145,19 @@ public class DishServiceImpl implements DishService {
             dishMapper.update(dish);
         }
 
+    }
+
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId
+     * @return
+     */
+    public List<Dish> list(Long categoryId) {
+        Dish dish = new Dish();
+        dish.setCategoryId(categoryId);
+        dish.setStatus(StatusConstant.ENABLE);
+        List<Dish> list = dishMapper.list(dish);
+        return list;
     }
 
 
