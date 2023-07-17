@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminShopController {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Integer> redisTemplate;
 
     @ApiOperation("设置店铺营业状态")
     @PutMapping("/{status}")
@@ -26,9 +26,9 @@ public class AdminShopController {
 
     @ApiOperation("获取店铺营业状态")
     @GetMapping("/status")
-    public Result getStatus(){
+    public Result<Integer> getStatus(){
         // 从redis中获取店铺营业状态
-        Integer status = (Integer)redisTemplate.opsForValue().get("shop_status");
+        Integer status = redisTemplate.opsForValue().get("shop_status");
         return Result.success(status);
     }
 }
