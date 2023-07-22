@@ -1,9 +1,12 @@
 package com.sky.service.impl;
 
 import com.sky.entity.Orders;
+import com.sky.entity.User;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private UserMapper userMapper;
     @Override
     public TurnoverReportVO turnoverReport(LocalDate begin, LocalDate end) {
         //得到每天的日期格式
@@ -51,7 +57,49 @@ public class ReportServiceImpl implements ReportService {
         turnoverReportVO.setDateList(join);
         turnoverReportVO.setTurnoverList(join1);
 
-
         return turnoverReportVO;
+    }
+
+    @Override
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        //得到每天的日期格式
+        List<LocalDate> localDateList = new ArrayList<LocalDate>();
+        while (!begin.equals(end)){
+            begin = begin.plusDays(1);//日期计算，获得指定日期后1天的日期
+            localDateList.add(begin);
+        }
+        String join = StringUtils.join(localDateList, ",");
+
+        //得到每天新增的用户
+        List<Integer> listNew = new ArrayList<>();
+        for (LocalDate date : localDateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Map map = new HashMap();
+            map.put("begin",beginTime);
+            map.put("end", endTime);
+            Integer newUser = userMapper.getUser(map);
+            listNew.add(newUser);
+        }
+
+        //得到全部用户
+        List<Integer> listAll = new ArrayList<>();
+        for (LocalDate date : localDateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Map map = new HashMap();
+            map.put("end", endTime);
+            Integer newUser = userMapper.getUser(map);
+            listNew.add(newUser);
+        }
+
+        String join1 = StringUtils.join(listNew, ",");
+        String join2 = StringUtils.join(listAll, ",");
+
+        UserReportVO userReportVO = new UserReportVO();
+        userReportVO.setDateList(join);
+        userReportVO.setNewUserList(join1);
+        userReportVO.setTotalUserList(join2);
+        return userReportVO;
     }
 }
