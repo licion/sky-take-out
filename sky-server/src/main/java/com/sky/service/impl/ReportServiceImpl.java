@@ -5,6 +5,7 @@ import com.sky.entity.User;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
@@ -101,5 +102,74 @@ public class ReportServiceImpl implements ReportService {
         userReportVO.setNewUserList(join1);
         userReportVO.setTotalUserList(join2);
         return userReportVO;
+    }
+
+    @Override
+    public OrderReportVO orderReport(LocalDate begin, LocalDate end) {
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+
+        while (!begin.equals(end)){
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        String join = StringUtils.join(dateList, ",");
+
+        //每天订单总数集合
+        List<Integer> allList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Integer everyDayOrders = getOrderWithStatusAndTime(beginTime, endTime, null);
+            allList.add(everyDayOrders);
+        }
+        String join1 = StringUtils.join(allList, ",");
+
+        //每天有效订单数集合
+        List<Integer> effectiveList = new ArrayList<>();
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Integer everyDayEffectiveOrders = getOrderWithStatusAndTime(beginTime, endTime, Orders.COMPLETED);
+            effectiveList.add(everyDayEffectiveOrders);
+        }
+        String join2 = StringUtils.join(effectiveList, ",");
+
+        //订单总数
+        Integer allOrders = 0;
+        for (Integer everydayOrders : allList) {
+            allOrders = allOrders + everydayOrders;
+        }
+
+
+        //总有效订单数
+        Integer allEffectiveOrders = 0;
+        for (Integer everydayEffectiveOrders : effectiveList) {
+            allEffectiveOrders = allEffectiveOrders + everydayEffectiveOrders;
+        }
+
+        //订单完成率
+        Double orderCompletionRate = 0.0;
+        if(allOrders != 0){
+            orderCompletionRate = allEffectiveOrders.doubleValue() / allOrders;
+        }
+
+        //封装返回值
+        OrderReportVO orderReportVO = new OrderReportVO();
+        orderReportVO.setDateList(join);
+        orderReportVO.setOrderCountList(join1);
+        orderReportVO.setValidOrderCountList(join2);
+        orderReportVO.setTotalOrderCount(allOrders);
+        orderReportVO.setValidOrderCount(allEffectiveOrders);
+        orderReportVO.setOrderCompletionRate(orderCompletionRate);
+        return orderReportVO;
+    }
+
+    private Integer getOrderWithStatusAndTime(LocalDateTime beginTime, LocalDateTime endTime, Integer status){
+       Map map = new HashMap();
+       map.put("status", status);
+       map.put("begin",beginTime);
+       map.put("end", endTime);
+       return orderMapper.getNumberByTimeAndStatus(map);
     }
 }
